@@ -4,5 +4,5 @@ import Lib
 
 main :: IO ()
 main = do
-    r <- someFunc
+    r <- findProgram
     print r 

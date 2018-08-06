@@ -4,8 +4,10 @@ module Lib
 
 import Data.SBV
 
-eval :: SWord8 -> (SWord8 -> SWord8)
-eval x y = ite (x .== 0) y (y + 1)
+add :: SBV Word8
+add = 0
 
-findProgram :: IO SatResult
-findProgram = sat $ \x -> forAll_ $ \y -> (eval x) y .== y + 1
+eval :: SArray Word8 Word8  -> (SWord8 -> SWord8)
+eval x y = ite (readArray x (literal 0) .== add) (y + 1) y
+
+findProgram = sat $ newArray "x" Nothing >>= \x -> forAll ["y"] $ \y -> eval x y .== y + 1

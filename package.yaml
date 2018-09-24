@@ -37,6 +37,7 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - satprograms
+    - sbv
 
 tests:
   satprograms-test:

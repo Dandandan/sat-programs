@@ -3,11 +3,15 @@ module Lib
     ) where
 
 import Data.SBV
+import Data.SBV.List
+import Data.SBV.Control
 
 add :: SBV Word8
 add = 0
 
-eval :: SArray Word8 Word8  -> (SWord8 -> SWord8)
-eval x y = ite (readArray x (literal 0) .== add) (y + 1) y
+eval :: SList Word8 -> SWord8 -> SWord8
+eval x y = ite (x `elemAt` literal 0 .== add) (y + 1) y
 
-findProgram = sat $ newArray "x" Nothing >>= \x -> forAll ["y"] $ \y -> eval x y .== y + 1
+findProgram :: IO SatResult
+findProgram = sat $ \prog -> forAll_ $ \y ->
+    eval prog y .== y + 1

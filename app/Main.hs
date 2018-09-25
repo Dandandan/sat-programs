@@ -7,5 +7,5 @@ import Data.SBV.Control
 
 main :: IO ()
 main = do
-    r <- findProgram
+    r <- findProgram 1
     print r

@@ -1,17 +1,31 @@
+{-# LANGUAGE OverloadedLists #-}
 module Lib
     ( findProgram
     ) where
 
 import Data.SBV
-import Data.SBV.List
-import Data.SBV.Control
+import Data.SBV.List as List
+import Data.SBV.List.Bounded
 
 add :: SBV Word8
 add = 0
 
-eval :: SList Word8 -> SWord8 -> SWord8
-eval x y = ite (x `elemAt` literal 0 .== add) (y + 1) y
+sub :: SBV Word8
+sub = 1
 
-findProgram :: IO SatResult
-findProgram = sat $ \prog -> forAll_ $ \y ->
-    eval prog y .== y + 1
+eval :: SWord8 -> SWord8 -> SWord8
+eval x y = 
+           iteLazy (x .== add) (y + 1) $
+           iteLazy (x .== sub) (y - 1)
+            y
+
+maxLength = 10
+
+evalProg :: SList Word8 -> SWord8 -> Int -> SWord8
+evalProg prog y l = 
+    bfoldr l eval y prog
+
+findProgram :: Int -> IO SatResult
+findProgram i = sat $ \prog -> forAll_ $ \y ->
+        evalProg prog y i .== y + 1
+        &&& List.length prog .== literal (toInteger i)

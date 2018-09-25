@@ -15,8 +15,8 @@ sub = 1
 
 eval :: SWord8 -> SWord8 -> SWord8
 eval x y = 
-           iteLazy (x .== add) (y + 1) $
-           iteLazy (x .== sub) (y - 1)
+           ite (x .== add) (y + 1) $
+           ite (x .== sub) (y - 1)
             y
 
 maxLength = 10
@@ -27,5 +27,5 @@ evalProg prog y l =
 
 findProgram :: Int -> IO SatResult
 findProgram i = sat $ \prog -> forAll_ $ \y ->
+        List.length prog .== literal (toInteger i) &&&
         evalProg prog y i .== y + 1
-        &&& List.length prog .== literal (toInteger i)

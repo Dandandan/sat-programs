@@ -12,19 +12,28 @@ add = 0
 sub :: SBV Word8
 sub = 1
 
-eval :: Int -> SWord8 -> SList Word8 -> SList Word8
-eval i x y = 
-           ite (x .== add) (bmap i (*2) y) $
-           ite (x .== sub) (bmap i (+1) y)
+t2 :: SBV Word8
+t2 = 2
+
+d2 :: SBV Word8
+d2 = 3
+
+eval :: SWord8 -> SWord8 -> SWord8
+eval x y = 
+           ite (x .== add) (y + 1) $
+           ite (x .== sub) (y - 1) $
+           ite (x .== t2) (y * 2) $
+           ite (x .== d2) (y `sDiv` 2) $
            y
 
-evalProg :: SList Word8 -> SList Word8 -> Int -> Int -> SList Word8
-evalProg prog y l i = 
-    bfoldr l (eval i) y prog
+evalProg :: SList Word8 -> SWord8 -> Int -> SWord8
+evalProg prog x len =
+    bfoldr len eval x prog
 
 findProgram :: Int -> IO SatResult
-findProgram i = sat $ do
+findProgram len = sat $ do
         prog <- free "prog"
-        constrain $ List.length prog .== literal (toInteger i)
+        constrain $ List.length prog .== literal (toInteger len)
+        
         return $
-            evalProg prog [0] i 1 .== [1]
+            map (\x -> evalProg prog x len) [-1, 0, 1] .== [-15, 1, 17]
